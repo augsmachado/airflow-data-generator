@@ -59,16 +59,28 @@ services:
             - airflow_net
         entrypoint: >
             /bin/bash -c "
-            echo 'Starting' &&
+            echo 'Starting Airflow setup...' &&
             pip install --upgrade pip &&
-            pip install -r /requirements.txt &&
-            echo 'Waiting for the database to start...' &&
-            while ! pg_isready -h airflow_db -p 5432 -U airflow; do sleep 5; done &&
-            echo 'Database ready. Initializing Airflow...' &&
+            pip install --no-cache-dir -r /requirements.txt || exit 1 &&
+
+            echo 'Waiting for the database to be ready...' &&
+            while ! pg_isready -h airflow_db -p 5432 -U airflow; do
+                echo 'Database not ready, waiting...';
+                sleep 5;
+            done;
+
+            echo 'Database ready! Running Airflow migrations...' &&
             airflow db init &&
             airflow db upgrade &&
-            airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com ||
-            echo 'User already exists, continuing...' &&
+
+            if ! airflow users list | grep -q 'admin'; then
+                echo 'Creating default user...' &&
+                airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com
+            else
+                echo 'Admin user already exists, skipping creation.'
+            fi
+
+            echo 'Starting Airflow services...' &&
             airflow scheduler & airflow webserver"
 
 networks:
