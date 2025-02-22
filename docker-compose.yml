@@ -28,7 +28,7 @@ services:
             - airflow_net
 
     airflow:
-        image: apache/airflow:2.8.1
+        image: apache/airflow:2.10.5
         container_name: airflow
         restart: always
         depends_on:
