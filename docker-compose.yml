@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+    postgres1:
+        image: postgres:15
+        container_name: postgres1
+        restart: always
+        environment:
+            POSTGRES_USER: user1
+            POSTGRES_PASSWORD: pass1
+            POSTGRES_DB: db1
+        ports:
+            - "5433:5432"
+        networks:
+            - airflow_net
+
+    postgres2:
+        image: postgres:15
+        container_name: postgres2
+        restart: always
+        environment:
+            POSTGRES_USER: user2
+            POSTGRES_PASSWORD: pass2
+            POSTGRES_DB: db2
+        ports:
+            - "5434:5432"
+        networks:
+            - airflow_net
+
+    airflow:
+        image: apache/airflow:2.8.1
+        container_name: airflow
+        restart: always
+        depends_on:
+            - postgres1
+            - postgres2
+        environment:
+            - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+            - AIRFLOW__CORE__SQL_ALCHEMY_CONN=sqlite:////opt/airflow/airflow.db
+        volumes:
+            - ./dags:/opt/airflow/dags
+        ports:
+            - "8080:8080"
+        networks:
+            - airflow_net
+        entrypoint: >
+            /bin/bash -c "airflow db init && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com && airflow webserver & airflow scheduler"
+
+networks:
+    airflow_net:
+        driver: bridge
