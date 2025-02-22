@@ -1,0 +1,7 @@
+# dev requirements
+
+# airflow providers
+apache-airflow-providers-postgres
+
+# airflow extras
+psycopg2-binary
