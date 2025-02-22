@@ -9,13 +9,16 @@ venv-deactivate:
 	deactivate
 
 venv-install:
-	pip install --upgrade pip
-	pip install -r requirements.txt --upgrade
+	pip3 install --upgrade pip
+	pip3 install -r requirements.txt --upgrade
 
 venv-freeze:
-	pip freeze > requirements.txt
+	pip3 freeze > requirements.txt
 
 # docker commands
+docker-build:
+	docker compose build
+
 docker-init:
 	docker compose up -d
 
