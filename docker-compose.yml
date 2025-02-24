@@ -54,6 +54,7 @@ services:
             - ./dags:/opt/airflow/dags
             - ./plugins:/opt/airflow/plugins
             - ./schemas:/opt/airflow/schemas
+            - ./scripts:/opt/airflow/scripts
         ports:
             - "8080:8080"
         networks:
