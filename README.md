@@ -1,11 +1,21 @@
 # Airflow Data Generator
 
-## Overview - TODO
+## Overview
+
+This project, Airflow Data Generator, demonstrates how to orchestrate data generation and processing tasks using Apache Airflow and PostgreSQL. It leverages a multi-container Docker setup for easy deployment and management. The project includes:
+
+-   **Airflow DAGs**: Defines workflows for data generation and processing, including connections to multiple PostgreSQL databases. Currently, the dual_postgres_dag.py DAG demonstrates querying two separate Postgres databases.
+-   **PostgreSQL Integration**: Uses PostgreSQL as the backend database for Airflow metadata and also includes multiple Postgres containers for demonstrating data interaction with different databases.
+-   **Dockerized Environment**: Utilizes Docker Compose to manage the multi-container environment, including Airflow, PostgreSQL (for Airflow metadata), and additional PostgreSQL instances for data processing.
+-   **Automated Build Process**: Includes a Makefile for streamlined building and running of the Docker environment.
+
+The project aims to provide a practical example of how to use Airflow to orchestrate data-related tasks, interact with multiple databases, and manage the entire process within a containerized environment. It serves as a starting point for building more complex data pipelines and workflows. Future development may include more sophisticated data generation tasks, data transformation logic, and integration with other data processing tools.
 
 ## 🚀 Features
 
 -   Airflow orchestration
 -   PostgreSQL database integration
+-   Dynamic table creation and population: Create and populate tables based on JSON table definitions, allowing for flexible data generation.
 
 ## 🛠 Tech Stack
 
