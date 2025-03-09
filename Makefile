@@ -30,7 +30,6 @@ docker-init:
 	done
 	docker compose run --rm postgres1 /bin/bash -c "./scripts/setup_metabase_db.sh" || exit 1
 
-
 docker-rebuild:
 	docker compose up --build -d
 
@@ -42,3 +41,7 @@ docker-logs:
 
 docker-down:
 	docker compose down
+
+# python commands
+python-test:
+	pytest tests

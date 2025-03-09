@@ -15,18 +15,20 @@ The project aims to provide a practical example of how to use Airflow to orchest
 
 -   Airflow orchestration
 -   PostgreSQL database integration
+-   Metabase data visualization tool
 -   Dynamic table creation and population: Create and populate tables based on JSON table definitions, allowing for flexible data generation.
 
 ## 🛠 Tech Stack
 
--   Python 3.11
--   PostgreSQL 15
--   Airflow 2.10.5
--   Docker
+-   Python: 3.12
+-   PostgreSQL: 15
+-   Airflow: 2.10.5
+-   Metabase: 0.53.5.4
+-   Docker: 4.38.0
 
 ## 📦 Prerequisites
 
--   Python 3.11+
+-   Python 3.12+
 -   PostgreSQL 15
 -   Airflow 2.10.5
 -   Docker Hub
@@ -44,19 +46,28 @@ cd airflow-data-generator
 
 ### 🚦 Running the Application
 
+You can use the `make docker-init` command or execute
+
 ```bash
 chmod +x ./scripts/setup_metabase_db.sh
 docker compose up -d || exit 1
-docker compose exec postgres1 /bin/bash -c "./scripts/setup_metabase_db.sh" || exit 1
+for db in postgres1 postgres2; do \
+    while ! docker compose exec -T $$db pg_isready -U usr$${db:7} -d db$${db:7}; do \
+    	sleep 1; \
+    done \
+done
+docker compose run --rm postgres1 /bin/bash -c "./scripts/setup_metabase_db.sh" || exit 1
 ```
 
-Verify if containers are running
+To verify if containers are running, you can use the `make docker-verify` command or execute
 
 ```bash
 docker ps
 ```
 
 ### 🔍 Testing
+
+You can use the `make python-test` command or execute
 
 ```bash
 pytest
