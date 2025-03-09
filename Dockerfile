@@ -6,7 +6,6 @@ USER root
 # Set an installation directory accessible to the Airflow user
 ENV AIRFLOW_HOME=/opt/airflow
 ENV PIP_TARGET=$AIRFLOW_HOME/.local
-ENV PYTHONPATH=$PIP_TARGET:$PYTHONPATH
 
 # Copy the dependencies file
 COPY requirements.txt /requirements.txt
@@ -16,6 +15,9 @@ RUN pip3 install --no-cache-dir -r /requirements.txt --target $PIP_TARGET
 
 # Check if the package was installed
 RUN pip3 show apache-airflow-providers-postgres
+
+# Set PYTHONPATH after installing dependencies
+ENV PYTHONPATH=$PIP_TARGET:$PYTHONPATH
 
 # Returns to the default Airflow user
 USER airflow
