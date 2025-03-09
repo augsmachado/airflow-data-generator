@@ -45,7 +45,9 @@ cd airflow-data-generator
 ### 🚦 Running the Application
 
 ```bash
-docker compose up -d
+chmod +x ./scripts/setup_metabase_db.sh
+docker compose up -d || exit 1
+docker compose exec postgres1 /bin/bash -c "./scripts/setup_metabase_db.sh" || exit 1
 ```
 
 Verify if containers are running
