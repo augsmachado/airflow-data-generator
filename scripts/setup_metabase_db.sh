@@ -1,4 +1,5 @@
 #!/bin/bash
+# postgres1
 # Check if the database already exists
 if docker compose exec postgres1 psql -U usr1 -d db1 -lqt | cut -d \| -f 1 | grep -qw metabase; then
     echo "Database 'metabase' already exists. Skipping creation."
