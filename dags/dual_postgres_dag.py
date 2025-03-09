@@ -1,6 +1,8 @@
 from airflow import DAG
+
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.operators.python import PythonOperator
+
 from datetime import datetime
 import logging
 
@@ -14,7 +16,11 @@ default_args = {
 def log_message(message):
     logging.info(message)
 
-with DAG('dual_postgres_dag', default_args=default_args, schedule_interval=None) as dag:
+with DAG(
+    'dual_postgres_dag',
+    default_args=default_args,
+    schedule_interval=None
+) as dag:
 
     # Mensagem antes da primeira query
     start_task1 = PythonOperator(
