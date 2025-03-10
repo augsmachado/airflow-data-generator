@@ -18,6 +18,13 @@ The project aims to provide a practical example of how to use Airflow to orchest
 -   Metabase data visualization tool
 -   Dynamic table creation and population: Create and populate tables based on JSON table definitions, allowing for flexible data generation.
 
+## DAGs
+
+This project includes two main DAGs:
+
+-   **users_table.py**: This DAG generates fake user data using the Faker library and inserts it into a PostgreSQL table named users. It runs on a schedule of every 2 minutes.
+-   **dual_postgres_dag.py**: This DAG demonstrates querying two separate Postgres databases (postgres1 and postgres2). It currently executes a simple SELECT NOW() query on each database.
+
 ## 🛠 Tech Stack
 
 -   Python: 3.12
@@ -25,19 +32,16 @@ The project aims to provide a practical example of how to use Airflow to orchest
 -   Airflow: 2.10.5
 -   Metabase: 0.53.5.4
 -   Docker: 4.38.0
+-   Docker Compose
 
 ## 📦 Prerequisites
 
--   Python 3.12+
--   PostgreSQL 15
--   Airflow 2.10.5
--   Docker Hub
--   Docker Compose
--   pip
+-   Docker and Docker Compose installed.
+-   Python 3.12+ (for local development and testing).
 
 ## 🔧 Installation
 
-### 1. Clone Repository
+### Clone Repository
 
 ```bash
 git clone https://github.com/augsmachado/airflow-data-generator.git
@@ -46,38 +50,60 @@ cd airflow-data-generator
 
 ### 🚦 Running the Application
 
-You can use the `make docker-init` command or execute
+Start the Docker container
 
 ```bash
-chmod +x ./scripts/setup_metabase_db.sh
-docker compose up -d || exit 1
-for db in postgres1 postgres2; do \
-    while ! docker compose exec -T $$db pg_isready -U usr$${db:7} -d db$${db:7}; do \
-    	sleep 1; \
-    done \
-done
-docker compose run --rm postgres1 /bin/bash -c "./scripts/setup_metabase_db.sh" || exit 1
+make docker-init
 ```
 
-To verify if containers are running, you can use the `make docker-verify` command or execute
+This command will build and start all the necessary containers, including Airflow, PostgreSQL, and Metabase. It also initializes the Airflow database, creates an admin user, and sets up the Metabase database connection.
+
+To verify if containers are running, execute
 
 ```bash
-docker ps
+make docker-verify
 ```
+
+### Access Airflow
+
+Open your web browser and navigate to http://localhost:8080. Log in with the default credentials:
+
+-   Username: admin
+-   Password: admin
+
+### Access Metabase
+
+Open your web browser and navigate to http://localhost:3000. You'll need to complete the Metabase setup wizard, connecting it to the postgres1 database with the following credentials:
+
+-   Host: postgres1
+-   Port: 5432
+-   Database: metabase
+-   Username: metabase_user
+-   Password: metabase_password
 
 ### 🔍 Testing
 
-You can use the `make python-test` command or execute
+Run the tests using
 
 ```bash
-pytest
+make python-test
 ```
 
-### 🔐 Security
+## Makefile Targets
 
--   CodeQL analysis integrated
--   Dependabot for dependency updates
--   Regular security scans
+The included Makefile provides several useful commands for managing the project:
+
+-   **make docker-init**: Builds and starts the Docker containers.
+-   **make docker-rebuild**: Rebuilds and restarts the Docker containers.
+-   **make docker-verify**: Lists running Docker containers.
+-   **make docker-logs**: Displays logs from the Docker containers.
+-   **make docker-down**: Stops and removes the Docker containers.
+-   **make python-test**: Runs the Python tests using pytest.
+-   **make venv-create**: Creates a virtual environment.
+-   **make venv-activate**: Activates the virtual environment.
+-   **make venv-deactivate**: Deactivates the virtual environment.
+-   **make venv-install**: Installs project dependencies.
+-   **make venv-freeze**: Freezes dependencies into requirements.txt.
 
 ### 🤝 Contributing
 
