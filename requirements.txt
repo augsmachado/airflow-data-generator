@@ -1,5 +1,6 @@
 # dev requirements
 pytest
+Faker
 
 # airflow providers
 aiohappyeyeballs==2.4.6
