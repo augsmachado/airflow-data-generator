@@ -18,6 +18,16 @@ The project aims to provide a practical example of how to use Airflow to orchest
 -   Metabase data visualization tool
 -   Dynamic table creation and population: Create and populate tables based on JSON table definitions, allowing for flexible data generation.
 
+## Architecture
+
+```mermaid
+graph TD;
+    Airflow --> PostgreSQL_AirflowDB;
+    Airflow --> PostgreSQL1_User_Data;
+    Airflow --> PostgreSQL2;
+    PostgreSQL1_User_Data  --> Metabase;
+```
+
 ## DAGs
 
 This project includes two main DAGs:
