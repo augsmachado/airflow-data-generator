@@ -11,6 +11,7 @@ ENV PIP_TARGET=$AIRFLOW_HOME/.local
 COPY requirements.txt /requirements.txt
 
 # Install dependencies in the correct directory
+RUN pip3 install --upgrade pip
 RUN pip3 install --no-cache-dir -r /requirements.txt --target $PIP_TARGET
 
 # Check if the package was installed
