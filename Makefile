@@ -33,7 +33,7 @@ docker-init:
 	docker compose up -d
 
 docker-rebuild:
-	docker compose up --build -d
+	docker compose up -d --build
 
 docker-verify:
 	docker ps
