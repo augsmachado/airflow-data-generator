@@ -25,14 +25,15 @@ graph TD;
     Airflow --> PostgreSQL_AirflowDB;
     Airflow --> PostgreSQL1_User_Data;
     Airflow --> PostgreSQL2;
-    PostgreSQL1_User_Data  --> Metabase;
+    PostgreSQL1_User_Data  --> Metabase
+    Metabase --> PostgreSQL_MetabaseDB;
 ```
 
 ## DAGs
 
 This project includes two main DAGs:
 
--   **users_table.py**: This DAG generates fake user data using the Faker library and inserts it into a PostgreSQL table named users. It runs on a schedule of every 2 minutes.
+-   **users_table.py**: This DAG generates fake user data using the Faker library, inserts it into a PostgreSQL table named users and update the user's email. It runs on a schedule of every minute.
 -   **dual_postgres_dag.py**: This DAG demonstrates querying two separate Postgres databases (postgres1 and postgres2). It currently executes a simple SELECT NOW() query on each database.
 
 ## 🛠 Tech Stack
@@ -81,15 +82,24 @@ Open your web browser and navigate to http://localhost:8080. Log in with the def
 -   Username: admin
 -   Password: admin
 
+In the tab **Admin**, choose **Connections** and set this variables to create a new connection with our Postgres database:
+
+-   **Connection id**: postgres1_conn
+-   **Connection type**: Postgres
+-   **Schema**: db1
+-   **Login**: usr1
+-   **Password**: pwd
+-   **Port**: 5432
+
 ### Access Metabase
 
 Open your web browser and navigate to http://localhost:3000. You'll need to complete the Metabase setup wizard, connecting it to the postgres1 database with the following credentials:
 
--   Host: postgres1
+-   Host: metabase_db
 -   Port: 5432
 -   Database: metabase
--   Username: metabase_user
--   Password: metabase_password
+-   Username: metabase_usr
+-   Password: metabase_pwd
 
 ### 🔍 Testing
 
