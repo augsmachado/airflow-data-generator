@@ -1,4 +1,5 @@
 import json
+
 from datetime import datetime
 from faker import Faker
 
@@ -53,9 +54,28 @@ def insert_users(**context):
             conn.rollback()
             print(f"Error inserting user: {user}. Error: {e}")
 
+def update_users(**context):
+    postgres_hook = PostgresHook(postgres_conn_id="postgres1_conn")
+    conn = postgres_hook.get_conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(
+            """
+            UPDATE users
+            SET email = lower(first_name || '.' || last_name || '@' || split_part(email, '@', 2)),
+                updated_at = NOW()
+            WHERE updated_at IS NULL;
+            """
+        )
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"Error updating users: {e}")
+
 with DAG('users_table',
     start_date=datetime(2024, 2, 21),
-    schedule_interval="*/2 * * * *",
+    schedule_interval="* * * * *",
     catchup=False
 ) as dag:
     create_table = SQLExecuteQueryOperator(
@@ -63,7 +83,7 @@ with DAG('users_table',
         conn_id="postgres1_conn",
         sql="sql/create_users.sql",
     )
-    
+
     generate_fake_users = PythonOperator(
         task_id='generate_fake_users',
         python_callable=generate_fake_users,
@@ -75,12 +95,18 @@ with DAG('users_table',
         python_callable=insert_users,
         provide_context=True,
     )
-    
+
+    update_users_task = PythonOperator(
+        task_id='update_users',
+        python_callable=update_users,
+        provide_context=True,
+    )
+
     fetch_records = SQLExecuteQueryOperator(
         task_id="fetch_records",
         conn_id="postgres1_conn",
         sql="SELECT * FROM users;",
     )
-    
 
-    create_table >> generate_fake_users >> insert_users_task >> fetch_records
+    # Define the task dependencies
+    create_table >> generate_fake_users >> insert_users_task >> update_users_task >> fetch_records
