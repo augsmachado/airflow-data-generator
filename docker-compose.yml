@@ -8,7 +8,7 @@ services:
             POSTGRES_PASSWORD: airflow
             POSTGRES_DB: airflow
         ports:
-            - "5435:5432"
+            - "5433:5432"
         networks:
             - airflow_net
 
@@ -21,7 +21,7 @@ services:
             POSTGRES_PASSWORD: pwd1
             POSTGRES_DB: db1
         ports:
-            - "5433:5432"
+            - "5434:5432"
         volumes:
             - ./scripts:/scripts
         networks:
@@ -32,22 +32,42 @@ services:
             timeout: 5s
             retries: 10
 
-    postgres2:
+    # postgres2:
+    #     image: postgres:15
+    #     container_name: postgres2
+    #     restart: always
+    #     environment:
+    #         POSTGRES_USER: usr2
+    #         POSTGRES_PASSWORD: pwd2
+    #         POSTGRES_DB: db2
+    #     ports:
+    #         - "5435:5432"
+    #     volumes:
+    #         - ./scripts:/scripts
+    #     networks:
+    #         - airflow_net
+    #     healthcheck:
+    #         test: ["CMD-SHELL", "pg_isready -U usr2 -d db2"]
+    #         interval: 10s
+    #         timeout: 5s
+    #         retries: 10
+
+    metabase_db:
         image: postgres:15
-        container_name: postgres2
+        container_name: metabase_db
         restart: always
         environment:
-            POSTGRES_USER: usr2
-            POSTGRES_PASSWORD: pwd2
-            POSTGRES_DB: db2
+            POSTGRES_USER: metabase_usr
+            POSTGRES_PASSWORD: metabase_pwd
+            POSTGRES_DB: metabase
         ports:
-            - "5434:5432"
+            - "5436:5432"
         volumes:
             - ./scripts:/scripts
         networks:
             - airflow_net
         healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U usr2 -d db2"]
+            test: ["CMD-SHELL", "pg_isready -U metabase_usr -d metabase"]
             interval: 10s
             timeout: 5s
             retries: 10
@@ -59,7 +79,7 @@ services:
         depends_on:
             - airflow_db
             - postgres1
-            - postgres2
+        #    - postgres2
         environment:
             - AIRFLOW__CORE__EXECUTOR=LocalExecutor
             - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow_db:5432/airflow
@@ -94,31 +114,29 @@ services:
             echo 'Starting Airflow services...' &&
             airflow scheduler & airflow webserver"
 
-    # metabase:
-    #     image: metabase/metabase:v0.53.5.4
-    #     container_name: metabase
-    #     restart: always
-    #     ports:
-    #         - "3000:3000"
-    #     depends_on:
-    #         postgres1:
-    #             condition: service_healthy
-    #         postgres2:
-    #             condition: service_healthy
-    #     environment:
-    #         - MB_DB_TYPE=postgres
-    #         - MB_DB_DBNAME=metabase
-    #         - MB_DB_PORT=5432
-    #         - MB_DB_USER=metabase_user
-    #         - MB_DB_PASS=metabase_password
-    #         - MB_DB_HOST=postgres1
-    #     healthcheck:
-    #         test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
-    #         interval: 30s
-    #         timeout: 10s
-    #         retries: 10
-    #     networks:
-    #         - airflow_net
+    metabase:
+        image: metabase/metabase:v0.53.5.4
+        container_name: metabase
+        restart: always
+        ports:
+            - "3000:3000"
+        depends_on:
+            metabase_db:
+                condition: service_healthy
+        environment:
+            - MB_DB_TYPE=postgres
+            - MB_DB_DBNAME=metabase
+            - MB_DB_PORT=5432
+            - MB_DB_USER=metabase_usr
+            - MB_DB_PASS=metabase_pwd
+            - MB_DB_HOST=metabase_db
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+            interval: 30s
+            timeout: 10s
+            retries: 10
+        networks:
+            - airflow_net
 
 networks:
     airflow_net:
