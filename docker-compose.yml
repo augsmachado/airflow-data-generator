@@ -1,17 +1,4 @@
 services:
-    airflow_db:
-        image: postgres:15
-        container_name: airflow_db
-        restart: always
-        environment:
-            POSTGRES_USER: airflow
-            POSTGRES_PASSWORD: airflow
-            POSTGRES_DB: airflow
-        ports:
-            - "5433:5432"
-        networks:
-            - airflow_net
-
     postgres1:
         image: postgres:15
         container_name: postgres1
@@ -21,7 +8,7 @@ services:
             POSTGRES_PASSWORD: pwd1
             POSTGRES_DB: db1
         ports:
-            - "5434:5432"
+            - "5433:5432"
         volumes:
             - ./scripts:/scripts
         networks:
@@ -41,7 +28,7 @@ services:
     #         POSTGRES_PASSWORD: pwd2
     #         POSTGRES_DB: db2
     #     ports:
-    #         - "5435:5432"
+    #         - "5434:5432"
     #     volumes:
     #         - ./scripts:/scripts
     #     networks:
@@ -51,26 +38,6 @@ services:
     #         interval: 10s
     #         timeout: 5s
     #         retries: 10
-
-    metabase_db:
-        image: postgres:15
-        container_name: metabase_db
-        restart: always
-        environment:
-            POSTGRES_USER: metabase_usr
-            POSTGRES_PASSWORD: metabase_pwd
-            POSTGRES_DB: metabase
-        ports:
-            - "5436:5432"
-        volumes:
-            - ./scripts:/scripts
-        networks:
-            - airflow_net
-        healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U metabase_usr -d metabase"]
-            interval: 10s
-            timeout: 5s
-            retries: 10
 
     airflow:
         build: .
@@ -114,6 +81,19 @@ services:
             echo 'Starting Airflow services...' &&
             airflow scheduler & airflow webserver"
 
+    airflow_db:
+        image: postgres:15
+        container_name: airflow_db
+        restart: always
+        environment:
+            POSTGRES_USER: airflow
+            POSTGRES_PASSWORD: airflow
+            POSTGRES_DB: airflow
+        ports:
+            - "5435:5432"
+        networks:
+            - airflow_net
+
     metabase:
         image: metabase/metabase:v0.53.5.4
         container_name: metabase
@@ -137,6 +117,26 @@ services:
             retries: 10
         networks:
             - airflow_net
+
+    metabase_db:
+        image: postgres:15
+        container_name: metabase_db
+        restart: always
+        environment:
+            POSTGRES_USER: metabase_usr
+            POSTGRES_PASSWORD: metabase_pwd
+            POSTGRES_DB: metabase
+        ports:
+            - "5436:5432"
+        volumes:
+            - ./scripts:/scripts
+        networks:
+            - airflow_net
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U metabase_usr -d metabase"]
+            interval: 10s
+            timeout: 5s
+            retries: 10
 
 networks:
     airflow_net:
