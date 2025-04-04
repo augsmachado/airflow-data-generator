@@ -5,7 +5,6 @@ CREATE TYPE payment_methods AS ENUM ('credit_card', 'debit_card', 'paypal', 'pix
 CREATE TABLE IF NOT EXISTS payments (
     payment_id SERIAL PRIMARY KEY,
     order_id INTEGER NOT NULL REFERENCES orders(order_id),
-    payment_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     amount DECIMAL(10, 2) NOT NULL,
     payment_method payment_methods NOT NULL,
     status payment_status NOT NULL DEFAULT 'pending',

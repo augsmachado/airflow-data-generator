@@ -33,7 +33,6 @@ def generate_fake_users(num_users, **context):
     # Push the generated users to XCom
     context['ti'].xcom_push(key='generated_users', value=users)
 
-
 def insert_users(**context):
     postgres_hook = PostgresHook(postgres_conn_id="postgres1_conn")
     conn = postgres_hook.get_conn()
@@ -41,34 +40,39 @@ def insert_users(**context):
 
     users = context['ti'].xcom_pull(key='generated_users', task_ids='generate_fake_users')
 
-    for user in users:
-        try:
-            cursor.execute(
-                """
-                INSERT INTO users (
-                    first_name,
-                    last_name,
-                    email,
-                    birth_date,
-                    tax_id,
-                    is_active,
-                    additional_info
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
-                ON CONFLICT (email) DO NOTHING;
-                """,
-                (
-                    user['first_name'],
-                    user['last_name'],
-                    user['email'],
-                    user['birth_date'],
-                    user['tax_id'],
-                    user['is_active'],
-                    user['additional_info'])
-            )
-            conn.commit()
-        except Exception as e:
-            conn.rollback()
-            print(f"Error inserting user: {user}. Error: {e}")
+    user_values = [(
+        user['first_name'],
+        user['last_name'],
+        user['email'],
+        user['birth_date'],
+        user['tax_id'],
+        user['is_active'],
+        user['additional_info']
+    ) for user in users]
+
+    try:
+        cursor.executemany(
+            """
+            INSERT INTO users (
+                first_name,
+                last_name,
+                email,
+                birth_date,
+                tax_id,
+                is_active,
+                additional_info
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (email) DO NOTHING;
+            """,
+            user_values
+        )
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"Error inserting users: {e}")
+    finally:
+        cursor.close()
+        conn.close()
 
 def update_users(**context):
     postgres_hook = PostgresHook(postgres_conn_id="postgres1_conn")
@@ -90,6 +94,27 @@ def update_users(**context):
     except Exception as e:
         conn.rollback()
         print(f"Error updating users: {e}")
+
+def soft_delete_users(**context):
+    postgres_hook = PostgresHook(postgres_conn_id="postgres1_conn")
+    conn = postgres_hook.get_conn()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(
+            """
+            UPDATE users
+            SET deleted_at = NOW()
+            WHERE
+                deleted_at IS NULL
+                AND is_active = FALSE;
+            """
+        )
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"Error updating users: {e}")
+
 
 with DAG('users_table',
     start_date=datetime(2024, 2, 21),
@@ -119,12 +144,18 @@ with DAG('users_table',
         python_callable=update_users,
         provide_context=True,
     )
+    
+    soft_delete_users_task = PythonOperator(
+        task_id='soft_delete_users',
+        python_callable=soft_delete_users,
+        provide_context=True,
+    )
 
     fetch_records = SQLExecuteQueryOperator(
         task_id="fetch_records",
         conn_id="postgres1_conn",
-        sql="SELECT * FROM users;",
+        sql="SELECT * FROM users LIMIT 1;",
     )
 
     # Define the task dependencies
-    create_table >> generate_fake_users >> insert_users_task >> update_users_task >> fetch_records
+    create_table >> generate_fake_users >> insert_users_task >> update_users_task >> soft_delete_users_task >> fetch_records
