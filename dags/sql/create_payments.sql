@@ -1,6 +1,6 @@
 -- create payments table
-CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'refused', 'refunded');
-CREATE TYPE payment_methods AS ENUM ('credit_card', 'debit_card', 'paypal', 'pix');
+CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'refused', 'refunded', 'cancelled');
+CREATE TYPE payment_methods AS ENUM ('credit_card', 'debit_card', 'paypal', 'pix', 'boleto', 'cash', 'gift_card');
 
 CREATE TABLE IF NOT EXISTS payments (
     payment_id SERIAL PRIMARY KEY,
