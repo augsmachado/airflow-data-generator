@@ -81,7 +81,9 @@ def update_users(**context):
             UPDATE users
             SET email = lower(first_name || '.' || last_name || '@' || split_part(email, '@', 2)),
                 updated_at = NOW()
-            WHERE updated_at IS NULL;
+            WHERE
+                updated_at IS NULL
+                AND is_active = TRUE;
             """
         )
         conn.commit()
