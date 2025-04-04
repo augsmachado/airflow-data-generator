@@ -24,7 +24,6 @@ The project aims to provide a practical example of how to use Airflow to orchest
 graph TD;
     Airflow --> PostgreSQL_AirflowDB;
     Airflow --> PostgreSQL1_User_Data;
-    Airflow --> PostgreSQL2;
     PostgreSQL1_User_Data  --> Metabase
     Metabase --> PostgreSQL_MetabaseDB;
 ```
@@ -86,7 +85,8 @@ In the tab **Admin**, choose **Connections** and set this variables to create a 
 
 -   **Connection id**: postgres1_conn
 -   **Connection type**: Postgres
--   **Schema**: db1
+-   **Host**: postgres1
+-   **Schema/Database**: db1
 -   **Login**: usr1
 -   **Password**: pwd
 -   **Port**: 5432

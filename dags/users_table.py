@@ -19,6 +19,7 @@ def generate_fake_users(num_users, **context):
             'email': fake.email(),
             'birth_date': fake.date_of_birth().isoformat(),
             'tax_id': fake.ssn(),
+            'is_active': fake.boolean(),
             'additional_info': json.dumps({
                 'address': fake.address(),
                 'favorite_color': fake.color_name(),
@@ -44,10 +45,25 @@ def insert_users(**context):
         try:
             cursor.execute(
                 """
-                INSERT INTO users (first_name, last_name, email, birth_date, tax_id, additional_info)
-                VALUES (%s, %s, %s, %s, %s, %s);
+                INSERT INTO users (
+                    first_name,
+                    last_name,
+                    email,
+                    birth_date,
+                    tax_id,
+                    is_active,
+                    additional_info
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (email) DO NOTHING;
                 """,
-                (user['first_name'], user['last_name'], user['email'], user['birth_date'], user['tax_id'], user['additional_info'])
+                (
+                    user['first_name'],
+                    user['last_name'],
+                    user['email'],
+                    user['birth_date'],
+                    user['tax_id'],
+                    user['is_active'],
+                    user['additional_info'])
             )
             conn.commit()
         except Exception as e:
@@ -75,7 +91,7 @@ def update_users(**context):
 
 with DAG('users_table',
     start_date=datetime(2024, 2, 21),
-    schedule_interval="* * * * *",
+    schedule_interval="*/2 * * * *",
     catchup=False
 ) as dag:
     create_table = SQLExecuteQueryOperator(
