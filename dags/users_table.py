@@ -17,15 +17,14 @@ def generate_fake_users(num_users, **context):
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "email": fake.email(),
+            "phone_number": fake.phone_number(),
             "birth_date": fake.date_of_birth().isoformat(),
             "tax_id": fake.ssn(),
             "is_active": fake.boolean(),
             "additional_info": json.dumps({
                 "address": fake.address(),
-                "favorite_color": fake.color_name(),
-                "favorite_food": fake.word(),
-                "favorite_movie": fake.word(),
-                "favorite_music_genre": fake.word(),
+                "company": fake.company(),
+                "job": fake.job(),
             })
         }
         users.append(user)
@@ -83,10 +82,11 @@ def update_users(**context):
         cursor.execute(
             """
             UPDATE users
-            SET email = lower(first_name || "." || last_name || "@" || split_part(email, "@", 2)),
+            SET email = lower(first_name || '.' || last_name || '@' || split_part(email, '@', 2)),
                 updated_at = NOW()
             WHERE
                 updated_at IS NULL
+                AND deleted_at IS NULL
                 AND is_active = TRUE;
             """
         )
@@ -119,7 +119,7 @@ def soft_delete_users(**context):
 with DAG(
     "users_table",
     start_date=datetime(2024, 2, 21),
-    schedule_interval="*/10 * * * *",
+    schedule_interval="*/2 * * * *",
     catchup=False,
     tags=["users", "crud-table"]
 ) as dag:

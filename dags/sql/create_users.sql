@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
+    phone_number VARCHAR(20) NOT NULL,
     birth_date DATE NOT NULL,
     tax_id VARCHAR(255) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
