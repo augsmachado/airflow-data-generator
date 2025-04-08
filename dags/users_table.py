@@ -17,7 +17,7 @@ def generate_fake_users(num_users, **context):
             "first_name": fake.first_name(),
             "last_name": fake.last_name(),
             "email": fake.email(),
-            "phone_number": fake.phone_number(),
+            "phone_number": fake.msisdn(),
             "birth_date": fake.date_of_birth().isoformat(),
             "tax_id": fake.ssn(),
             "is_active": fake.boolean(),
@@ -43,6 +43,7 @@ def insert_users(**context):
         user["first_name"],
         user["last_name"],
         user["email"],
+        user["phone_number"],
         user["birth_date"],
         user["tax_id"],
         user["is_active"],
@@ -56,11 +57,12 @@ def insert_users(**context):
                 first_name,
                 last_name,
                 email,
+                phone_number,
                 birth_date,
                 tax_id,
                 is_active,
                 additional_info
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (email) DO NOTHING;
             """,
             user_values
@@ -86,8 +88,7 @@ def update_users(**context):
                 updated_at = NOW()
             WHERE
                 updated_at IS NULL
-                AND deleted_at IS NULL
-                AND is_active = TRUE;
+                AND deleted_at IS NULL;
             """
         )
         conn.commit()
