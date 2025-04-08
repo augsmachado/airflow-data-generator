@@ -32,7 +32,6 @@ graph TD;
 
 ```mermaid
 graph TD;
-graph TD
     users --> wallets
     wallets --> transactions
 ```
