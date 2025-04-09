@@ -133,7 +133,7 @@ with DAG(
     generate_fake_users = PythonOperator(
         task_id="generate_fake_users",
         python_callable=generate_fake_users,
-        op_kwargs={"num_users": 10}
+        op_kwargs={"num_users": fake.random_int(min=1, max=20)}
     )
 
     insert_users_task = PythonOperator(

@@ -34,6 +34,17 @@ docker-logs:
 docker-down:
 	docker compose down
 
+# airflow commands
+airflow-db-conn:
+	docker compose exec webserver airflow connections add \
+	--conn-id postgres1_conn \
+	--conn-type postgres \
+	--conn-host postgres1 \
+	--conn-schema db1 \
+	--conn-login usr1 \
+	--conn-password pwd1 \
+	--conn-port 5432
+
 # python commands
 python-test:
 	pytest tests
