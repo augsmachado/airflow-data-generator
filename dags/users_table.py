@@ -70,7 +70,7 @@ def insert_users(**context):
         conn.commit()
     except Exception as e:
         conn.rollback()
-        print(f"Error inserting users: {e}")
+        raise Exception(f"Error inserting users: {e}")
     finally:
         cursor.close()
         conn.close()
@@ -94,7 +94,10 @@ def update_users(**context):
         conn.commit()
     except Exception as e:
         conn.rollback()
-        print(f"Error updating users: {e}")
+        raise Exception(f"Error updating users: {e}")
+    finally:
+        cursor.close()
+        conn.close()
 
 def soft_delete_users(**context):
     postgres_hook = PostgresHook(postgres_conn_id="postgres1_conn")
@@ -114,13 +117,16 @@ def soft_delete_users(**context):
         conn.commit()
     except Exception as e:
         conn.rollback()
-        print(f"Error updating users: {e}")
+        raise Exception(f"Error updating users: {e}")
+    finally:
+        cursor.close()
+        conn.close()
 
 
 with DAG(
     "users_table",
     start_date=datetime(2024, 2, 21),
-    schedule_interval="*/2 * * * *",
+    schedule_interval="*/5 * * * *",
     catchup=False,
     tags=["users", "crud-table"]
 ) as dag:

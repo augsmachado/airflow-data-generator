@@ -1,7 +1,7 @@
 -- create transactions table
-CREATE TYPE transaction_status AS ENUM ('pending', 'paid', 'refused', 'refunded', 'cancelled');
-CREATE TYPE transaction_type AS ENUM ('credit', 'debit');
-CREATE TYPE transaction_method AS ENUM ('credit_card', 'debit_card', 'paypal', 'pix', 'boleto', 'cash', 'gift_card', 'bank_transfer', 'crypto');
+-- CREATE TYPE transaction_status AS ENUM ('pending', 'paid', 'refused', 'refunded', 'cancelled', 'failed', 'disputed', 'chargeback', 'reversed', 'completed', 'processing', 'on_hold', 'partially_refunded', 'partially_paid', 'voided');
+-- CREATE TYPE transaction_type AS ENUM ('credit', 'debit');
+-- CREATE TYPE transaction_method AS ENUM ('credit_card', 'debit_card', 'paypal', 'pix', 'boleto', 'cash', 'gift_card', 'bank_transfer', 'crypto');
 
 CREATE TABLE IF NOT EXISTS transactions (
     transaction_id SERIAL PRIMARY KEY,

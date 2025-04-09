@@ -55,7 +55,7 @@ def insert_wallets(**context):
         conn.commit()
     except Exception as e:
         conn.rollback()
-        print(f"Error inserting wallets: {e}")
+        raise Exception(f"Error inserting wallets: {e}")
     finally:
         cursor.close()
         conn.close()
@@ -74,7 +74,7 @@ def soft_delete_wallets(**context):
                 deleted_at = NOW()
             WHERE
                 user_id IN (
-                    SELECT id
+                    SELECT user_id
                     FROM users
                     WHERE is_active = FALSE
                 )
@@ -84,7 +84,7 @@ def soft_delete_wallets(**context):
         conn.commit()
     except Exception as e:
         conn.rollback()
-        print(f"Error soft deleting wallets: {e}")
+        raise Exception(f"Error soft deleting wallets: {e}")
     finally:
         cursor.close()
         conn.close()
